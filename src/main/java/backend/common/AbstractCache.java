@@ -100,7 +100,7 @@ public abstract class AbstractCache<T> {
     /**
      * 关闭缓存，写回所有资源
      */
-    protected void close() {
+    public void close() {
         lock.lock();
         try {
             // 【BugFix】: 使用迭代器或复制KeySet来避免 ConcurrentModificationException
