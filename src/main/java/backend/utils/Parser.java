@@ -46,4 +46,26 @@ public class Parser {
     public static byte[] short2Byte(short value) {
         return ByteBuffer.allocate(Short.SIZE / Byte.SIZE).putShort(value).array();
     }
+
+    // ------------------- int -------------------
+    /**
+     * 将 byte[] 转换为 int
+     * 
+     * @param array 字节数组 (至少4位)
+     * @return 解析出的 int 值
+     */
+    public static int parseInt(byte[] array) {
+        ByteBuffer buffer = ByteBuffer.wrap(array, 0, 4);
+        return buffer.getInt();
+    }
+
+    /**
+     * 将 int 转换为 byte[]
+     * 
+     * @param value int 值
+     * @return 长度为 4 的字节数组
+     */
+    public static byte[] int2Byte(int value) {
+        return ByteBuffer.allocate(Integer.SIZE / Byte.SIZE).putInt(value).array();
+    }
 }

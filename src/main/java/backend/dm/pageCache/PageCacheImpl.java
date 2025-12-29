@@ -5,6 +5,8 @@ import backend.dm.page.Page;
 import backend.dm.page.PageImpl;
 import backend.utils.Error;
 import backend.utils.Panic;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -146,5 +148,71 @@ public class PageCacheImpl extends AbstractCache<Page> implements PageCache {
     // 根据页号计算偏移量：(页号-1) * 8192
     private static long pageOffset(int pgno) {
         return (long) (pgno - 1) * PAGE_SIZE;
+    }
+
+    /**
+     * 创建新的数据库文件并返回页面缓存实例
+     * 
+     * @param path   数据库文件路径（不含后缀）
+     * @param memory 缓存大小（字节）
+     * @return PageCacheImpl 实例
+     */
+    public static PageCacheImpl create(String path, long memory) {
+        File f = new File(path + DB_SUFFIX);
+        try {
+            // 创建新文件，如果文件已存在则 panic
+            if (!f.createNewFile()) {
+                Panic.panic(Error.FileExistsException);
+            }
+        } catch (Exception e) {
+            Panic.panic(e);
+        }
+        // 检查文件读写权限
+        if (!f.canRead() || !f.canWrite()) {
+            Panic.panic(Error.FileCannotRWException);
+        }
+
+        FileChannel fc = null;
+        RandomAccessFile raf = null;
+        try {
+            // 以读写模式打开文件
+            raf = new RandomAccessFile(f, "rw");
+            fc = raf.getChannel();
+        } catch (IOException e) {
+            Panic.panic(e);
+        }
+        // 计算最大缓存页数：总内存 / 页大小
+        return new PageCacheImpl(raf, fc, (int) memory / PAGE_SIZE);
+    }
+
+    /**
+     * 打开已有的数据库文件并返回页面缓存实例
+     * 
+     * @param path   数据库文件路径（不含后缀）
+     * @param memory 缓存大小（字节）
+     * @return PageCacheImpl 实例
+     */
+    public static PageCacheImpl open(String path, long memory) {
+        File f = new File(path + DB_SUFFIX);
+        // 检查文件是否存在
+        if (!f.exists()) {
+            Panic.panic(Error.FileNotExistsException);
+        }
+        // 检查文件读写权限
+        if (!f.canRead() || !f.canWrite()) {
+            Panic.panic(Error.FileCannotRWException);
+        }
+
+        FileChannel fc = null;
+        RandomAccessFile raf = null;
+        try {
+            // 以读写模式打开文件
+            raf = new RandomAccessFile(f, "rw");
+            fc = raf.getChannel();
+        } catch (IOException e) {
+            Panic.panic(e);
+        }
+        // 计算最大缓存页数：总内存 / 页大小
+        return new PageCacheImpl(raf, fc, (int) memory / PAGE_SIZE);
     }
 }
