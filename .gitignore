@@ -37,3 +37,11 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### Database test files ###
+*.db
+*.xid
+*.log
+*.bt
+benchmark_test_db*
+testDB*
