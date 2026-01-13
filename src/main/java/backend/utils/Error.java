@@ -20,4 +20,10 @@ public class Error {
     public static final Exception NullEntryException = new RuntimeException("Entry is null!");
     public static final Exception ConcurrentUpdateException = new RuntimeException("Concurrent update issue!");
     public static final Exception DeadlockException = new RuntimeException("Deadlock detected!");
+
+    // parser
+    public static final Exception InvalidCommandException = new RuntimeException("Invalid command!");
+
+    // transport
+    public static final Exception InvalidPkgDataException = new RuntimeException("Invalid package data!");
 }

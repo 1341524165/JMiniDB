@@ -68,4 +68,44 @@ public class Parser {
     public static byte[] int2Byte(int value) {
         return ByteBuffer.allocate(Integer.SIZE / Byte.SIZE).putInt(value).array();
     }
+
+    // ------------------- string -------------------
+    /**
+     * 将字符串转换为 byte[]
+     * 格式：[StringLength(4字节)][StringData]
+     */
+    public static byte[] string2Byte(String str) {
+        byte[] strBytes = str.getBytes();
+        byte[] lenBytes = int2Byte(strBytes.length);
+        byte[] result = new byte[4 + strBytes.length];
+        System.arraycopy(lenBytes, 0, result, 0, 4);
+        System.arraycopy(strBytes, 0, result, 4, strBytes.length);
+        return result;
+    }
+
+    /**
+     * 从 byte[] 解析字符串
+     * 返回 ParseStringRes，包含解析的字符串和下一个位置偏移
+     */
+    public static backend.tbm.ParseStringRes parseString(byte[] raw) {
+        int len = parseInt(raw);
+        String str = new String(raw, 4, len);
+        backend.tbm.ParseStringRes res = new backend.tbm.ParseStringRes();
+        res.str = str;
+        res.next = 4 + len;
+        return res;
+    }
+
+    /**
+     * 将字符串转换为 UID（用于索引）
+     * 简单实现：取前8字节的哈希
+     */
+    public static long str2Uid(String str) {
+        long seed = 13331;
+        long res = 0;
+        for (byte b : str.getBytes()) {
+            res = res * seed + (long) b;
+        }
+        return res;
+    }
 }
